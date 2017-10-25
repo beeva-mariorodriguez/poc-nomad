@@ -15,6 +15,12 @@ resource "aws_subnet" "nomad" {
   map_public_ip_on_launch = true
 }
 
+resource "aws_subnet" "client" {
+  vpc_id                  = "${aws_vpc.nomad.id}"
+  cidr_block              = "10.20.3.0/24"
+  map_public_ip_on_launch = true
+}
+
 resource "aws_internet_gateway" "gw" {
   vpc_id = "${aws_vpc.nomad.id}"
 }
