@@ -88,6 +88,7 @@ resource "aws_instance" "nomad_docker_client" {
     "${aws_vpc.nomad.default_security_group_id}",
     "${aws_security_group.consul.id}",
     "${aws_security_group.nomad.id}",
+    "${aws_security_group.nomad_client.id}",
     "${aws_security_group.allowssh.id}",
   ]
 
@@ -99,6 +100,39 @@ resource "aws_instance" "nomad_docker_client" {
     inline = [
       "docker run -v consul:/consul/data --name=consul --net=host -d --restart=always consul:1.0.0 agent -retry-join 'provider=aws tag_key=consul tag_value=poc-nomad-consul' -advertise ${self.private_ip} -bind ${self.private_ip}",
       "docker run --privileged -v /tmp:/tmp -v /var/run/docker.sock:/var/run/docker.sock -v nomad:/nomad/data --name=nomad --net=host -d --restart=always beevamariorodriguez/nomad:v0.6.3",
+    ]
+  }
+
+  connection {
+    type = "ssh"
+    user = "core"
+  }
+
+  iam_instance_profile = "${aws_iam_instance_profile.consulagent.name}"
+}
+
+resource "aws_instance" "fabiolb" {
+  ami           = "${data.aws_ami.coreos.image_id}"
+  instance_type = "t2.micro"
+  subnet_id     = "${aws_subnet.lb.id}"
+  key_name      = "${var.keyname}"
+  count         = 1
+
+  vpc_security_group_ids = [
+    "${aws_vpc.nomad.default_security_group_id}",
+    "${aws_security_group.consul.id}",
+    "${aws_security_group.fabiolb.id}",
+    "${aws_security_group.allowssh.id}",
+  ]
+
+  tags {
+    Name = "Traefik"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "docker run -v consul:/consul/data --name=consul --net=host -d --restart=always consul:1.0.0 agent -retry-join 'provider=aws tag_key=consul tag_value=poc-nomad-consul' -advertise ${self.private_ip} -bind ${self.private_ip}",
+      "docker run --name=fabio -d --restart=always --net=host fabiolb/fabio:1.5.2-go1.9.1"
     ]
   }
 
