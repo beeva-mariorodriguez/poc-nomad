@@ -12,6 +12,9 @@ packer_cache/
 *.tfstate
 *.tfstate.backup
 
+# lock file
+.terraform.tfstate.lock.info
+
 # Module directory
 .terraform/
 
