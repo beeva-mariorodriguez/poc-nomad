@@ -22,6 +22,7 @@ resource "aws_instance" "consul_server" {
   vpc_security_group_ids = [
     "${aws_vpc.nomad.default_security_group_id}",
     "${aws_security_group.consul.id}",
+    "${aws_security_group.nomad.id}",
     "${aws_security_group.allowssh.id}",
   ]
 

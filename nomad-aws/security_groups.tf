@@ -28,3 +28,22 @@ resource "aws_security_group" "consul" {
     self      = true
   }
 }
+
+resource "aws_security_group" "nomad" {
+  name   = "nomad"
+  vpc_id = "${aws_vpc.nomad.id}"
+
+  ingress {
+    from_port = 4647
+    to_port   = 4648
+    protocol  = "tcp"
+    self      = true
+  }
+
+  ingress {
+    from_port = 4647
+    to_port   = 4648
+    protocol  = "udp"
+    self      = true
+  }
+}
