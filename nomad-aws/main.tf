@@ -65,7 +65,7 @@ resource "aws_instance" "nomad_server" {
   provisioner "remote-exec" {
     inline = [
       "docker run -v consul:/consul/data --name=consul --net=host -d --restart=always consul:1.0.0 agent -retry-join 'provider=aws tag_key=consul tag_value=poc-nomad-consul' -advertise ${self.private_ip} -bind ${self.private_ip}",
-      "docker run --name=nomad --net=host -d --restart=always beevamariorodriguez/nomad:v0.6.3 agent -config=/etc/nomad.d/server.hcl",
+      "docker run --name=nomad --net=host -d --restart=always -v nomad:/nomad/data beevamariorodriguez/nomad:v0.6.3 agent -config=/nomad/config/server.hcl",
     ]
   }
 
@@ -98,7 +98,7 @@ resource "aws_instance" "nomad_docker_client" {
   provisioner "remote-exec" {
     inline = [
       "docker run -v consul:/consul/data --name=consul --net=host -d --restart=always consul:1.0.0 agent -retry-join 'provider=aws tag_key=consul tag_value=poc-nomad-consul' -advertise ${self.private_ip} -bind ${self.private_ip}",
-      "docker run -v /var/run/docker.sock:/var/run/docker.sock --name=nomad --net=host -d --restart=always beevamariorodriguez/nomad:v0.6.3 agent -config=/etc/nomad.d/client.hcl",
+      "docker run --privileged -v /tmp:/tmp -v /var/run/docker.sock:/var/run/docker.sock -v nomad:/nomad/data --name=nomad --net=host -d --restart=always beevamariorodriguez/nomad:v0.6.3",
     ]
   }
 
