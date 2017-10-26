@@ -112,7 +112,7 @@ resource "aws_instance" "nomad_docker_client" {
 }
 
 resource "aws_instance" "fabiolb" {
-  ami           = "${data.aws_ami.coreos.image_id}"
+  ami           = "${data.aws_ami.beevalabs-poc-nomad.image_id}"
   instance_type = "t2.micro"
   subnet_id     = "${aws_subnet.lb.id}"
   key_name      = "${var.keyname}"
@@ -126,7 +126,7 @@ resource "aws_instance" "fabiolb" {
   ]
 
   tags {
-    Name = "Traefik"
+    Name = "LB"
   }
 
   provisioner "remote-exec" {
