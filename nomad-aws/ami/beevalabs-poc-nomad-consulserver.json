@@ -10,7 +10,7 @@
             "type": "amazon-ebs",
             "region":"eu-west-2",
             "instance_type": "t2.micro",
-            "ami_name": "beevalabs-poc-nomad-{{ user `version` }}",
+            "ami_name": "beevalabs-poc-nomad-consulserver-{{ user `version` }}",
             "ssh_username": "core",
             "tags":{
                 "OS_Version":"CoreOS"
@@ -26,12 +26,15 @@
         }
 	],
 	"provisioners":[
+        {
+            "type": "file",
+            "source": "setup-consulserver.sh",
+            "destination": "/tmp/setup-consulserver.sh"
+        },
 		{
             "type":"shell",
             "inline":[
-                "docker pull {{ user `consul` }}",
-                "docker pull {{ user `nomad` }}",
-                "docker pull {{ user `fabiolb` }}"
+                "/tmp/setup-consulserver.sh {{ user `consul` }}"
             ]
         }
     ]

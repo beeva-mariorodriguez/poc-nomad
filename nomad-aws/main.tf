@@ -1,4 +1,4 @@
-data "aws_ami" "beevalabs-poc-nomad" {
+data "aws_ami" "beevalabs-poc-nomad-consulserver" {
   most_recent = true
 
   filter {
@@ -8,12 +8,54 @@ data "aws_ami" "beevalabs-poc-nomad" {
 
   filter {
     name   = "name"
-    values = ["beevalabs-poc-nomad-*"]
+    values = ["beevalabs-poc-nomad-consulserver-*"]
+  }
+}
+
+data "aws_ami" "beevalabs-poc-nomad-nomadserver" {
+  most_recent = true
+
+  filter {
+    name   = "owner-id"
+    values = ["602636675831"]
+  }
+
+  filter {
+    name   = "name"
+    values = ["beevalabs-poc-nomad-nomadserver-*"]
+  }
+}
+
+data "aws_ami" "beevalabs-poc-nomad-nomadclient" {
+  most_recent = true
+
+  filter {
+    name   = "owner-id"
+    values = ["602636675831"]
+  }
+
+  filter {
+    name   = "name"
+    values = ["beevalabs-poc-nomad-nomadclient-*"]
+  }
+}
+
+data "aws_ami" "beevalabs-poc-nomad-lb" {
+  most_recent = true
+
+  filter {
+    name   = "owner-id"
+    values = ["602636675831"]
+  }
+
+  filter {
+    name   = "name"
+    values = ["beevalabs-poc-nomad-lb-*"]
   }
 }
 
 resource "aws_instance" "consul_server" {
-  ami           = "${data.aws_ami.beevalabs-poc-nomad.image_id}"
+  ami           = "${data.aws_ami.beevalabs-poc-nomad-consulserver.image_id}"
   instance_type = "t2.micro"
   subnet_id     = "${aws_subnet.consul.id}"
   key_name      = "${var.keyname}"
@@ -30,22 +72,11 @@ resource "aws_instance" "consul_server" {
     Name   = "consul server"
   }
 
-  provisioner "remote-exec" {
-    inline = [
-      "docker run -v consul:/consul/data --name=consul --net=host -d --restart=always ${var.consul} agent -server -retry-join 'provider=aws tag_key=consul tag_value=poc-nomad-consul' -advertise ${self.private_ip} -bind ${self.private_ip} -bootstrap-expect 3",
-    ]
-  }
-
-  connection {
-    type = "ssh"
-    user = "core"
-  }
-
   iam_instance_profile = "${aws_iam_instance_profile.consulagent.name}"
 }
 
 resource "aws_instance" "nomad_server" {
-  ami           = "${data.aws_ami.beevalabs-poc-nomad.image_id}"
+  ami           = "${data.aws_ami.beevalabs-poc-nomad-nomadserver.image_id}"
   instance_type = "t2.micro"
   subnet_id     = "${aws_subnet.nomad.id}"
   key_name      = "${var.keyname}"
@@ -62,23 +93,11 @@ resource "aws_instance" "nomad_server" {
     Name = "Nomad server"
   }
 
-  provisioner "remote-exec" {
-    inline = [
-      "docker run -v consul:/consul/data --name=consul --net=host -d --restart=always ${var.consul} agent -retry-join 'provider=aws tag_key=consul tag_value=poc-nomad-consul' -advertise ${self.private_ip} -bind ${self.private_ip}",
-      "docker run --name=nomad --net=host -d --restart=always -v nomad:/nomad/data ${var.nomad} agent -config=/nomad/config/server.hcl",
-    ]
-  }
-
-  connection {
-    type = "ssh"
-    user = "core"
-  }
-
   iam_instance_profile = "${aws_iam_instance_profile.consulagent.name}"
 }
 
 resource "aws_instance" "nomad_docker_client" {
-  ami           = "${data.aws_ami.beevalabs-poc-nomad.image_id}"
+  ami           = "${data.aws_ami.beevalabs-poc-nomad-nomadclient.image_id}"
   instance_type = "t2.micro"
   subnet_id     = "${aws_subnet.client.id}"
   key_name      = "${var.keyname}"
@@ -96,23 +115,11 @@ resource "aws_instance" "nomad_docker_client" {
     Name = "Nomad client"
   }
 
-  provisioner "remote-exec" {
-    inline = [
-      "docker run -v consul:/consul/data --name=consul --net=host -d --restart=always ${var.consul} agent -retry-join 'provider=aws tag_key=consul tag_value=poc-nomad-consul' -advertise ${self.private_ip} -bind ${self.private_ip}",
-      "docker run --privileged -v /tmp:/tmp -v /var/run/docker.sock:/var/run/docker.sock -v nomad:/nomad/data --name=nomad --net=host -d --restart=always ${var.nomad}",
-    ]
-  }
-
-  connection {
-    type = "ssh"
-    user = "core"
-  }
-
   iam_instance_profile = "${aws_iam_instance_profile.consulagent.name}"
 }
 
 resource "aws_instance" "fabiolb" {
-  ami           = "${data.aws_ami.beevalabs-poc-nomad.image_id}"
+  ami           = "${data.aws_ami.beevalabs-poc-nomad-lb.image_id}"
   instance_type = "t2.micro"
   subnet_id     = "${aws_subnet.lb.id}"
   key_name      = "${var.keyname}"
@@ -127,18 +134,6 @@ resource "aws_instance" "fabiolb" {
 
   tags {
     Name = "LB"
-  }
-
-  provisioner "remote-exec" {
-    inline = [
-      "docker run -v consul:/consul/data --name=consul --net=host -d --restart=always ${var.consul} agent -retry-join 'provider=aws tag_key=consul tag_value=poc-nomad-consul' -advertise ${self.private_ip} -bind ${self.private_ip}",
-      "docker run --name=fabio -d --restart=always --net=host ${var.fabiolb}",
-    ]
-  }
-
-  connection {
-    type = "ssh"
-    user = "core"
   }
 
   iam_instance_profile = "${aws_iam_instance_profile.consulagent.name}"
