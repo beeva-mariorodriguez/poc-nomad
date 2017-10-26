@@ -1,0 +1,37 @@
+{
+    "variables":{
+        "version": "0.0.1",
+        "consul": "consul:1.0.0",
+        "nomad": "beevamariorodriguez/nomad:v0.6.3"
+    },
+    "builders":[
+        {
+            "type": "amazon-ebs",
+            "region":"eu-west-2",
+            "instance_type": "t2.micro",
+            "ami_name": "beevalabs-poc-nomad-{{ user `version` }}",
+            "ssh_username": "core",
+            "tags":{
+                "OS_Version":"CoreOS"
+            },
+            "source_ami_filter": {
+                "filters": {
+                    "virtualization-type": "hvm",
+                     "name": "CoreOS-stable-*",
+                     "root-device-type": "ebs"
+                },
+                "most_recent": true
+			}
+        }
+	],
+	"provisioners":[
+		{
+            "type":"shell",
+            "inline":[
+                "docker pull {{ user `consul` }}",
+                "docker pull {{ user `nomad` }}"
+            ]
+        }
+    ]
+}
+
