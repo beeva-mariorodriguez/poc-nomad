@@ -1,19 +1,19 @@
-data "aws_ami" "coreos" {
+data "aws_ami" "beevalabs-poc-nomad" {
   most_recent = true
 
   filter {
     name   = "owner-id"
-    values = ["679593333241"]
+    values = ["602636675831"]
   }
 
   filter {
     name   = "name"
-    values = ["CoreOS-stable-*"]
+    values = ["beevalabs-poc-nomad-*"]
   }
 }
 
 resource "aws_instance" "consul_server" {
-  ami           = "${data.aws_ami.coreos.image_id}"
+  ami           = "${data.aws_ami.beevalabs-poc-nomad.image_id}"
   instance_type = "t2.micro"
   subnet_id     = "${aws_subnet.consul.id}"
   key_name      = "${var.keyname}"
@@ -45,7 +45,7 @@ resource "aws_instance" "consul_server" {
 }
 
 resource "aws_instance" "nomad_server" {
-  ami           = "${data.aws_ami.coreos.image_id}"
+  ami           = "${data.aws_ami.beevalabs-poc-nomad.image_id}"
   instance_type = "t2.micro"
   subnet_id     = "${aws_subnet.nomad.id}"
   key_name      = "${var.keyname}"
@@ -78,7 +78,7 @@ resource "aws_instance" "nomad_server" {
 }
 
 resource "aws_instance" "nomad_docker_client" {
-  ami           = "${data.aws_ami.coreos.image_id}"
+  ami           = "${data.aws_ami.beevalabs-poc-nomad.image_id}"
   instance_type = "t2.micro"
   subnet_id     = "${aws_subnet.client.id}"
   key_name      = "${var.keyname}"
