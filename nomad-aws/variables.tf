@@ -9,3 +9,15 @@ variable "azs" {
 variable "keyname" {
   default = "poc-nomad"
 }
+
+variable "consul" {
+  default = "consul:1.0.0"
+}
+
+variable "fabiolb" {
+  default = "fabiolb/fabio:1.5.2-go1.9.1"
+}
+
+variable "nomad" {
+  default = "beevamariorodriguez/nomad:v0.6.3"
+}
