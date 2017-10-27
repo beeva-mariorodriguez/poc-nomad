@@ -53,22 +53,10 @@ resource "aws_security_group" "nomad_client" {
   vpc_id = "${aws_vpc.nomad.id}"
 
   ingress {
-    from_port       = 0
-    to_port         = 65535
-    protocol        = "tcp"
-    security_groups = ["${aws_security_group.fabiolb.id}"]
-  }
-}
-
-resource "aws_security_group" "fabiolb" {
-  name   = "fabiolb"
-  vpc_id = "${aws_vpc.nomad.id}"
-
-  ingress {
-    from_port       = 9999
-    to_port         = 9999
-    protocol        = "tcp"
-    security_groups = ["${aws_security_group.bastion.id}"]
+    from_port = 0
+    to_port   = 65535
+    protocol  = "tcp"
+    self      = true
   }
 }
 

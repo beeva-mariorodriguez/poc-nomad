@@ -20,10 +20,11 @@ resource "aws_route53_record" "nomad" {
   records = ["${aws_instance.nomad_server.*.private_ip}"]
 }
 
-resource "aws_route53_record" "lb" {
+resource "aws_route53_record" "client" {
   zone_id = "${aws_route53_zone.private.zone_id}"
-  name    = "lb"
+  name    = "nomad"
   type    = "A"
   ttl     = "300"
-  records = ["${aws_instance.fabiolb.*.private_ip}"]
+  records = ["${aws_instance.nomad_docker_client.*.private_ip}"]
 }
+

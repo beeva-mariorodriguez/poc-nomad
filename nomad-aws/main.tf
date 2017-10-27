@@ -62,27 +62,6 @@ resource "aws_instance" "nomad_docker_client" {
   iam_instance_profile = "${aws_iam_instance_profile.consulagent.name}"
 }
 
-resource "aws_instance" "fabiolb" {
-  ami           = "${data.aws_ami.beevalabs-poc-nomad-lb.image_id}"
-  instance_type = "t2.micro"
-  subnet_id     = "${aws_subnet.lb.id}"
-  key_name      = "${var.keyname}"
-  count         = 1
-
-  vpc_security_group_ids = [
-    "${aws_vpc.nomad.default_security_group_id}",
-    "${aws_security_group.consul.id}",
-    "${aws_security_group.fabiolb.id}",
-    "${aws_security_group.allowssh.id}",
-  ]
-
-  tags {
-    Name = "LB"
-  }
-
-  iam_instance_profile = "${aws_iam_instance_profile.consulagent.name}"
-}
-
 resource "aws_instance" "bastion" {
   ami           = "${data.aws_ami.coreos.image_id}"
   instance_type = "t2.micro"
