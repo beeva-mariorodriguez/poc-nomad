@@ -1,6 +1,6 @@
 {
     "variables":{
-        "version": "0.0.2",
+        "version": "0.0.4",
         "consul": "consul:1.0.0",
         "nomad": "beevamariorodriguez/nomad:v0.6.3"
     },
@@ -27,13 +27,20 @@
 	"provisioners":[
         {
             "type": "file",
+            "source": "setup-consulclient.sh",
+            "destination": "/tmp/setup-consulclient.sh"
+        },
+        {
+            "type": "file",
             "source": "setup-nomadserver.sh",
             "destination": "/tmp/setup-nomadserver.sh"
         },
 		{
             "type":"shell",
             "inline":[
-                "/tmp/setup-nomadserver.sh {{ user `consul` }} {{ user `nomad` }}"
+                "sudo systemctl enable docker",
+                "/tmp/setup-consulclient.sh {{ user `consul` }}",
+                "/tmp/setup-nomadserver.sh {{ user `nomad` }}"
             ]
         }
     ]

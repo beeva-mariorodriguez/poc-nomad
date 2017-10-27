@@ -1,6 +1,6 @@
 {
     "variables":{
-        "version": "0.0.2",
+        "version": "0.0.4",
         "consul": "consul:1.0.0",
         "fabiolb": "fabiolb/fabio:1.5.2-go1.9.1"
     },
@@ -27,13 +27,20 @@
 	"provisioners":[
         {
             "type": "file",
+            "source": "setup-consulclient.sh",
+            "destination": "/tmp/setup-consulclient.sh"
+        },
+        {
+            "type": "file",
             "source": "setup-lb.sh",
             "destination": "/tmp/setup-lb.sh"
         },
 		{
             "type":"shell",
             "inline":[
-                "/tmp/setup-lb.sh {{ user `consul` }} {{ user `fabiolb` }}"
+                "sudo systemctl enable docker",
+                "/tmp/setup-consulclient.sh {{ user `consul` }}",
+                "/tmp/setup-lb.sh {{ user `fabiolb` }}"
             ]
         }
     ]

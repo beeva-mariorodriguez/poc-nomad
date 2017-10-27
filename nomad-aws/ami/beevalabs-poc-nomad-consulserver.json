@@ -1,6 +1,6 @@
 {
     "variables":{
-        "version": "0.0.2",
+        "version": "0.0.4",
         "consul": "consul:1.0.0",
         "nomad": "beevamariorodriguez/nomad:v0.6.3",
         "fabiolb": "fabiolb/fabio:1.5.2-go1.9.1"
@@ -34,6 +34,7 @@
 		{
             "type":"shell",
             "inline":[
+                "sudo systemctl enable docker",
                 "/tmp/setup-consulserver.sh {{ user `consul` }}"
             ]
         }
