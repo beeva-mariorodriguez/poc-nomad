@@ -1,3 +1,17 @@
+data "aws_ami" "coreos" {
+  most_recent = true
+
+  filter {
+    name   = "owner-id"
+    values = ["679593333241"]
+  }
+
+  filter {
+    name   = "name"
+    values = ["CoreOS-stable-*"]
+  }
+}
+
 data "aws_ami" "beevalabs-poc-nomad-consulserver" {
   most_recent = true
 
@@ -137,4 +151,21 @@ resource "aws_instance" "fabiolb" {
   }
 
   iam_instance_profile = "${aws_iam_instance_profile.consulagent.name}"
+}
+
+resource "aws_instance" "bastion" {
+  ami           = "${data.aws_ami.coreos.image_id}"
+  instance_type = "t2.micro"
+  subnet_id     = "${aws_subnet.bastion.id}"
+  key_name      = "${var.keyname}"
+  count         = 1
+
+  vpc_security_group_ids = [
+    "${aws_vpc.nomad.default_security_group_id}",
+    "${aws_security_group.bastion.id}",
+  ]
+
+  tags {
+    Name = "bastion"
+  }
 }

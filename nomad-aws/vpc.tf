@@ -27,6 +27,12 @@ resource "aws_subnet" "lb" {
   map_public_ip_on_launch = true
 }
 
+resource "aws_subnet" "bastion" {
+  vpc_id                  = "${aws_vpc.nomad.id}"
+  cidr_block              = "10.20.5.0/24"
+  map_public_ip_on_launch = true
+}
+
 resource "aws_internet_gateway" "gw" {
   vpc_id = "${aws_vpc.nomad.id}"
 }
