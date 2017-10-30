@@ -1,13 +1,33 @@
 #!/bin/bash
-nomadimage=${1:-"beevamariorodriguez/nomad:v0.6.3"}
+nomadversion=${1:-"0.6.3"}
+cd /tmp
+wget "https://releases.hashicorp.com/nomad/0.6.3/nomad_${nomadversion}_linux_amd64.zip"
+unzip nomad_${nomadversion}_linux_amd64.zip
+sudo mkdir -p /opt/bin /etc/nomad.d /var/lib/nomad
+sudo cp nomad /opt/bin
 
-docker pull "$nomadimage"
+cat << EOF | sudo tee /etc/nomad.d/server.hcl
+data_dir = "/var/lib/nomad"
+disable_update_check = true
+server {
+    enabled = true
+    bootstrap_expect = 3
+}
+EOF
 
-docker create --name=nomad \
-    --net=host \
-    --restart=always \
-    -v nomad:/nomad/data \
-    "$nomadimage" \
-    agent \
-    -config=/nomad/config/server.hcl
+cat << EOF | sudo tee /etc/systemd/system/nomad.service
+[Unit]
+Description=nomad server
+After=network-online.target
+Requires=network-online.target
+
+[Service]
+TimeoutStartSec=0
+ExecStart=/opt/bin/nomad agent -config /etc/nomad.d/server.hcl
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+sudo systemctl enable nomad
 
