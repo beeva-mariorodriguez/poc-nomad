@@ -1,6 +1,6 @@
 {
     "variables":{
-        "version": "0.0.10",
+        "version": "0.1",
         "consul": "consul:1.0.0",
         "nomad": "0.6.3"
     },

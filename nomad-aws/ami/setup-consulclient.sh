@@ -13,5 +13,5 @@ docker create --name=consul \
     -retry-join 'provider=aws tag_key=consul tag_value=poc-nomad-consul' \
     -bind '{{ GetInterfaceIP "eth0" }}' \
     -dns-port 53 \
-    -client "172.17.0.1 127.0.0.1"
+    -client '{{ GetInterfaceIP "eth0" }} 172.17.0.1 127.0.0.1'
 

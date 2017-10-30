@@ -34,6 +34,14 @@ resource "aws_security_group" "consul" {
     protocol        = "tcp"
     security_groups = ["${aws_security_group.bastion.id}"]
   }
+
+  ingress {
+    from_port       = 8500
+    to_port         = 8500
+    protocol        = "tcp"
+    security_groups = ["${aws_security_group.bastion.id}"]
+  }
+
 }
 
 resource "aws_security_group" "nomad" {

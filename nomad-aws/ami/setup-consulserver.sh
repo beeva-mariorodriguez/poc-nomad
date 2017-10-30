@@ -12,5 +12,6 @@ docker create --name=consul \
     -retry-join 'provider=aws tag_key=consul tag_value=poc-nomad-consul' \
     -bind '{{ GetInterfaceIP "eth0" }}' \
     -server \
+    -client '{{ GetInterfaceIP "eth0" }} 127.0.0.1 172.17.0.1' \
     -bootstrap-expect 3
 
