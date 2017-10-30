@@ -9,10 +9,8 @@ job "fabiolb" {
         task "fabiolb" {
             driver = "docker"
             config {
+                network_mode = "host"
                 image = "fabiolb/fabio:1.5.2-go1.9.1"
-                port_map {
-                    lb = 9999
-                }
             }
             resources {
                 cpu = 500
