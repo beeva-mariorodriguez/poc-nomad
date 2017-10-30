@@ -5,11 +5,11 @@ job "hellohttp" {
             max_parallel = 1
                 min_healthy_time = "10s"
                 healthy_deadline = "3m"
-                auto_revert = false
-                canary = 0
+                auto_revert = true
+                canary = 1
         }
     group "hello" {
-        count = 3
+        count = 4
             restart {
                 attempts = 10
                     interval = "5m"
