@@ -6,9 +6,8 @@ resource "aws_instance" "consul_server" {
   count         = 3
 
   vpc_security_group_ids = [
-    "${aws_vpc.nomad.default_security_group_id}",
+    "${aws_security_group.allow_outbound.id}",
     "${aws_security_group.consul.id}",
-    "${aws_security_group.allowssh.id}",
   ]
 
   tags {
@@ -27,10 +26,9 @@ resource "aws_instance" "nomad_server" {
   count         = 3
 
   vpc_security_group_ids = [
-    "${aws_vpc.nomad.default_security_group_id}",
+    "${aws_security_group.allow_outbound.id}",
     "${aws_security_group.consul.id}",
     "${aws_security_group.nomad.id}",
-    "${aws_security_group.allowssh.id}",
   ]
 
   tags {
@@ -45,14 +43,13 @@ resource "aws_instance" "nomad_docker_client" {
   instance_type = "t2.micro"
   subnet_id     = "${aws_subnet.client.id}"
   key_name      = "${var.keyname}"
-  count         = 2
+  count         = 4
 
   vpc_security_group_ids = [
-    "${aws_vpc.nomad.default_security_group_id}",
+    "${aws_security_group.allow_outbound.id}",
     "${aws_security_group.consul.id}",
     "${aws_security_group.nomad.id}",
     "${aws_security_group.nomad_client.id}",
-    "${aws_security_group.allowssh.id}",
   ]
 
   tags {
@@ -70,7 +67,7 @@ resource "aws_instance" "bastion" {
   count         = 1
 
   vpc_security_group_ids = [
-    "${aws_vpc.nomad.default_security_group_id}",
+    "${aws_security_group.allow_outbound.id}",
     "${aws_security_group.bastion.id}",
   ]
 
@@ -78,11 +75,13 @@ resource "aws_instance" "bastion" {
     Name = "bastion"
   }
 
+  iam_instance_profile = "${aws_iam_instance_profile.consulagent.name}"
+
   provisioner "remote-exec" {
     inline = [
       "wget https://releases.hashicorp.com/nomad/0.6.3/nomad_0.6.3_linux_amd64.zip",
       "sudo mkdir -p /opt/bin",
-      "sudo unzip nomad*.zip -d /opt/bin",
+      "sudo unzip nomad*.zip -d /opt/bin"
     ]
   }
 

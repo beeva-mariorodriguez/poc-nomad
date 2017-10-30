@@ -27,4 +27,3 @@ resource "aws_route53_record" "client" {
   ttl     = "300"
   records = ["${aws_instance.nomad_docker_client.*.private_ip}"]
 }
-
