@@ -1,8 +1,8 @@
 {
     "variables":{
-        "version": "0.6.3-0",
+        "version": "0.7.0-rc3-0",
         "consul": "consul:1.0.0",
-        "nomad": "0.6.3"
+        "nomad": "0.7.0-rc3"
     },
     "builders":[
         {
