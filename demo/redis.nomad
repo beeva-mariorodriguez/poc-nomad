@@ -1,28 +1,35 @@
 job "redis" {
   datacenters = ["dc1"]
-  type = "service"
+  type        = "service"
+
   update {
-    max_parallel = 1
+    max_parallel     = 1
     min_healthy_time = "10s"
     healthy_deadline = "3m"
-    auto_revert = false
-    canary = 0
+    auto_revert      = false
+    canary           = 0
   }
+
   group "cache" {
     count = 1
+
     restart {
       attempts = 10
       interval = "5m"
-      delay = "25s"
-      mode = "delay"
+      delay    = "25s"
+      mode     = "delay"
     }
+
     ephemeral_disk {
       size = 300
     }
+
     task "redis" {
       driver = "docker"
+
       config {
         image = "redis:3.2"
+
         port_map {
           db = 6379
         }
@@ -31,6 +38,7 @@ job "redis" {
       resources {
         cpu    = 500 # 500 MHz
         memory = 256 # 256MB
+
         network {
           port "db" {}
         }
@@ -40,6 +48,7 @@ job "redis" {
         name = "global-redis-check"
         tags = ["global", "cache"]
         port = "db"
+
         check {
           name     = "alive"
           type     = "tcp"

@@ -81,7 +81,7 @@ resource "aws_instance" "bastion" {
     inline = [
       "wget https://releases.hashicorp.com/nomad/0.6.3/nomad_0.6.3_linux_amd64.zip",
       "sudo mkdir -p /opt/bin",
-      "sudo unzip nomad*.zip -d /opt/bin"
+      "sudo unzip nomad*.zip -d /opt/bin",
     ]
   }
 
