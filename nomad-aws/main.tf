@@ -75,8 +75,6 @@ resource "aws_instance" "bastion" {
     Name = "bastion"
   }
 
-  iam_instance_profile = "${aws_iam_instance_profile.consulagent.name}"
-
   provisioner "remote-exec" {
     inline = [
       "wget https://releases.hashicorp.com/nomad/0.7.0-rc3/nomad_0.7.0_rc3_linux_amd64.zip",
