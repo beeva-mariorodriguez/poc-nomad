@@ -53,17 +53,3 @@ data "aws_ami" "beevalabs-poc-nomad-nomadclient" {
     values = ["beevalabs-poc-nomad-nomadclient-*"]
   }
 }
-
-data "aws_ami" "beevalabs-poc-nomad-lb" {
-  most_recent = true
-
-  filter {
-    name   = "owner-id"
-    values = ["602636675831"]
-  }
-
-  filter {
-    name   = "name"
-    values = ["beevalabs-poc-nomad-lb-*"]
-  }
-}
