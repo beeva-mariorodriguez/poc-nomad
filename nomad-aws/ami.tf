@@ -22,7 +22,7 @@ data "aws_ami" "beevalabs-poc-nomad-consulserver" {
 
   filter {
     name   = "name"
-    values = ["beevalabs-poc-nomad-consulserver-*"]
+    values = ["beevalabs-poc-nomad-consulserver-1.0.0-*"]
   }
 }
 
@@ -36,7 +36,7 @@ data "aws_ami" "beevalabs-poc-nomad-nomadserver" {
 
   filter {
     name   = "name"
-    values = ["beevalabs-poc-nomad-nomadserver-*"]
+    values = ["beevalabs-poc-nomad-nomadserver-0.6.3-*"]
   }
 }
 
@@ -50,6 +50,6 @@ data "aws_ami" "beevalabs-poc-nomad-nomadclient" {
 
   filter {
     name   = "name"
-    values = ["beevalabs-poc-nomad-nomadclient-*"]
+    values = ["beevalabs-poc-nomad-nomadclient-0.6.3-*"]
   }
 }

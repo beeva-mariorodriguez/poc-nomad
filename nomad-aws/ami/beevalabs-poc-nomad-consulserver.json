@@ -1,6 +1,6 @@
 {
     "variables":{
-        "version": "0.1",
+        "version": "1.0.0-0",
         "consul": "consul:1.0.0",
         "nomad": "beevamariorodriguez/nomad:v0.6.3",
         "fabiolb": "fabiolb/fabio:1.5.2-go1.9.1"
