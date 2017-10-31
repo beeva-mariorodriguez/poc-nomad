@@ -6,8 +6,9 @@ job "hellohttp" {
     max_parallel     = 1
     min_healthy_time = "10s"
     healthy_deadline = "3m"
-    auto_revert      = true
+    auto_revert      = false
     canary           = 1
+    stagger          = "30s"
   }
 
   group "hello" {
@@ -29,6 +30,8 @@ job "hellohttp" {
         port_map {
           h = 8080
         }
+
+        #       dns_servers = ["172.17.0.1"]
       }
 
       resources {
