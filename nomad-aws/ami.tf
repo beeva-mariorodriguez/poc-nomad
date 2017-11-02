@@ -36,7 +36,7 @@ data "aws_ami" "beevalabs-poc-nomad-nomadserver" {
 
   filter {
     name   = "name"
-    values = ["beevalabs-poc-nomad-nomadserver-0.6.3-*"]
+    values = ["beevalabs-poc-nomad-nomadserver-0.7.0-*"]
   }
 }
 
@@ -50,6 +50,6 @@ data "aws_ami" "beevalabs-poc-nomad-nomadclient" {
 
   filter {
     name   = "name"
-    values = ["beevalabs-poc-nomad-nomadclient-0.6.3-*"]
+    values = ["beevalabs-poc-nomad-nomadclient-0.7.0-*"]
   }
 }
