@@ -1,41 +1,41 @@
+data "aws_iam_policy_document" "describeinstances" {
+  statement {
+    actions = [
+      "ec2:DescribeInstances",
+    ]
+
+    resources = ["*"]
+    effect    = "Allow"
+  }
+}
+
+data "aws_iam_policy_document" "assumerole" {
+  statement {
+    actions = [
+      "sts:AssumeRole",
+    ]
+
+    principals {
+      type        = "Service"
+      identifiers = ["ec2.amazonaws.com"]
+    }
+
+    effect = "Allow"
+  }
+}
+
 resource "aws_iam_instance_profile" "consulagent" {
   name = "consul"
   role = "${aws_iam_role.consulagent.name}"
 }
 
 resource "aws_iam_role" "consulagent" {
-  name = "consulagent"
-
-  assume_role_policy = <<EOF
-{
-  "Version": "2008-10-17",
-  "Statement": [
-    {
-      "Sid": "",
-      "Effect": "Allow",
-      "Principal": {
-        "Service": "ec2.amazonaws.com"
-      },
-      "Action": "sts:AssumeRole"
-    }
-  ]
-}
-EOF
+  name               = "consulagent"
+  assume_role_policy = "${data.aws_iam_policy_document.assumerole.json}"
 }
 
 resource "aws_iam_role_policy" "describeinstances" {
-  name = "describeinstances"
-  role = "${aws_iam_role.consulagent.id}"
-
-  policy = <<EOF
-{
-  "Statement": [{
-    "Effect": "Allow",
-    "Action": [
-      "ec2:DescribeInstances"
-    ],
-    "Resource": "*"
-  }]
-}
-EOF
+  name   = "describeinstances"
+  role   = "${aws_iam_role.consulagent.id}"
+  policy = "${data.aws_iam_policy_document.describeinstances.json}"
 }
