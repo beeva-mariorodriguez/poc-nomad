@@ -3,10 +3,10 @@ job "hellohttp" {
   type        = "service"
 
   update {
-    max_parallel     = 1
+    max_parallel     = 2
     min_healthy_time = "10s"
     healthy_deadline = "3m"
-    auto_revert      = false
+    auto_revert      = true
     canary           = 1
     stagger          = "30s"
   }
@@ -25,7 +25,7 @@ job "hellohttp" {
       driver = "docker"
 
       config {
-        image = "beevamariorodriguez/hellohttp:alpine"
+        image = "beevamariorodriguez/hellohttp:0.3"
 
         port_map {
           h = 8080
