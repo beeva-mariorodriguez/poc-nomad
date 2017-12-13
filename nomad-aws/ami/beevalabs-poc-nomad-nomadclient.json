@@ -1,6 +1,6 @@
 {
     "variables":{
-        "version": "0.7.0-0",
+        "version": "0.7.0-1",
         "consul": "consul:1.0.0",
         "nomad": "0.7.0"
     },
@@ -35,12 +35,18 @@
             "source": "setup-nomadclient.sh",
             "destination": "/tmp/setup-nomadclient.sh"
         },
+        {
+            "type": "file",
+            "source": "setup-dnsmasq.sh",
+            "destination": "/tmp/setup-dnsmasq.sh"
+        },
 		{
             "type":"shell",
             "inline":[
                 "sudo systemctl enable docker",
                 "/tmp/setup-consulclient.sh {{ user `consul` }}",
-                "/tmp/setup-nomadclient.sh {{ user `nomad` }}"
+                "/tmp/setup-nomadclient.sh {{ user `nomad` }}",
+                "/tmp/setup-dnsmasq.sh"
             ]
         }
     ]
