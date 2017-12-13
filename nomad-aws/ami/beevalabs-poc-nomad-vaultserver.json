@@ -1,0 +1,48 @@
+{
+    "variables":{
+        "version": "0.9.0-1",
+        "consul": "consul:1.0.0",
+        "vault": "vault:0.9.0"
+    },
+    "builders":[
+        {
+            "type": "amazon-ebs",
+            "region":"eu-west-2",
+            "instance_type": "t2.micro",
+            "ami_name": "beevalabs-poc-nomad-vaultserver-{{ user `version` }}",
+            "ssh_username": "core",
+            "tags":{
+                "OS_Version":"CoreOS"
+            },
+            "source_ami_filter": {
+                "filters": {
+                    "virtualization-type": "hvm",
+                     "name": "CoreOS-stable-*",
+                     "root-device-type": "ebs"
+                },
+                "most_recent": true
+			}
+        }
+	],
+	"provisioners":[
+        {
+            "type": "file",
+            "source": "setup-consulclient.sh",
+            "destination": "/tmp/setup-consulclient.sh"
+        },
+        {
+            "type": "file",
+            "source": "setup-vaultserver.sh",
+            "destination": "/tmp/setup-vaultserver.sh"
+        },
+		{
+            "type":"shell",
+            "inline":[
+                "sudo systemctl enable docker",
+                "/tmp/setup-consulclient.sh {{ user `consul` }}",
+                "/tmp/setup-vaultserver.sh {{ user `vault` }}"
+            ]
+        }
+    ]
+}
+
