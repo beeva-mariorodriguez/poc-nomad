@@ -8,6 +8,7 @@ resource "aws_instance" "consul_server" {
   vpc_security_group_ids = [
     "${aws_security_group.allow_outbound.id}",
     "${aws_security_group.consul.id}",
+    "${aws_security_group.vault_client.id}"
   ]
 
   tags {
@@ -29,6 +30,7 @@ resource "aws_instance" "nomad_server" {
     "${aws_security_group.allow_outbound.id}",
     "${aws_security_group.consul.id}",
     "${aws_security_group.nomad.id}",
+    "${aws_security_group.vault_client.id}"
   ]
 
   tags {
@@ -50,6 +52,7 @@ resource "aws_instance" "nomad_docker_client" {
     "${aws_security_group.consul.id}",
     "${aws_security_group.nomad.id}",
     "${aws_security_group.nomad_client.id}",
+    "${aws_security_group.vault_client.id}"
   ]
 
   tags {
