@@ -32,7 +32,7 @@ resource "aws_instance" "vault_server" {
   provisioner "remote-exec" {
     inline = [
       "chmod +x /tmp/setup-*.sh",
-      "/tmp/setup-consulclient.sh ${var.consulimage}",
+      "/tmp/setup-consulclient.sh ${var.consulimage} ${var.consulkey}",
       "/tmp/setup-vaultserver.sh ${var.vaultimage}",
     ]
   }

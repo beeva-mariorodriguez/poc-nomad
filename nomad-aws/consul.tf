@@ -26,7 +26,7 @@ resource "aws_instance" "consul_server" {
   provisioner "remote-exec" {
     inline = [
       "chmod +x /tmp/setup-consulserver.sh",
-      "/tmp/setup-consulserver.sh ${var.consulimage}",
+      "/tmp/setup-consulserver.sh ${var.consulimage} ${var.consulkey}",
     ]
   }
 

@@ -29,3 +29,5 @@ variable "nomadversion" {
 variable "dnsmasqimage" {
   default = "andyshinn/dnsmasq:2.78"
 }
+
+variable "consulkey" {}

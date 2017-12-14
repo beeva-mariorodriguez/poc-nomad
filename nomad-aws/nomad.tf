@@ -31,7 +31,7 @@ resource "aws_instance" "nomad_server" {
   provisioner "remote-exec" {
     inline = [
       "chmod +x /tmp/setup-*.sh",
-      "/tmp/setup-consulclient.sh ${var.consulimage}",
+      "/tmp/setup-consulclient.sh ${var.consulimage} ${var.consulkey}",
       "/tmp/setup-nomadserver.sh ${var.nomadversion}",
     ]
   }
@@ -82,7 +82,7 @@ resource "aws_instance" "nomad_docker_client" {
     inline = [
       "chmod +x /tmp/setup-*.sh",
       "/tmp/setup-dnsmasq.sh ${var.dnsmasqimage}",
-      "/tmp/setup-consulclient.sh ${var.consulimage}",
+      "/tmp/setup-consulclient.sh ${var.consulimage} ${var.consulkey}",
       "/tmp/setup-nomadclient.sh ${var.nomadversion}",
     ]
   }
