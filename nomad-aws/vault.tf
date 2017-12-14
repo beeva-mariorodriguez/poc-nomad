@@ -1,50 +1,5 @@
-resource "aws_security_group" "vault_client" {
-  name   = "vault_client"
-  vpc_id = "${aws_vpc.nomad.id}"
-}
-
-resource "aws_security_group" "vault" {
-  name   = "vault"
-  vpc_id = "${aws_vpc.nomad.id}"
-
-  ingress {
-    from_port       = 22
-    to_port         = 22
-    protocol        = "tcp"
-    security_groups = ["${aws_security_group.bastion.id}"]
-  }
-
-  ingress {
-    from_port       = 8200
-    to_port         = 8200
-    protocol        = "tcp"
-    security_groups = ["${aws_security_group.vault_client.id}", "${aws_security_group.bastion.id}"]
-  }
-
-  ingress {
-    from_port       = 8201
-    to_port         = 8201
-    protocol        = "tcp"
-    security_groups = ["${aws_security_group.vault_client.id}", "${aws_security_group.bastion.id}"]
-  }
-}
-
-data "aws_ami" "beevalabs-poc-nomad-vaultserver" {
-  most_recent = true
-
-  filter {
-    name   = "owner-id"
-    values = ["602636675831"]
-  }
-
-  filter {
-    name   = "name"
-    values = ["beevalabs-poc-nomad-vaultserver-0.9.0-*"]
-  }
-}
-
 resource "aws_instance" "vault_server" {
-  ami           = "${data.aws_ami.beevalabs-poc-nomad-vaultserver.image_id}"
+  ami           = "${data.aws_ami.coreos.image_id}"
   instance_type = "t2.micro"
   subnet_id     = "${aws_subnet.consul.id}"
   key_name      = "${var.keyname}"
@@ -52,6 +7,7 @@ resource "aws_instance" "vault_server" {
 
   vpc_security_group_ids = [
     "${aws_security_group.allow_outbound.id}",
+    "${aws_security_group.allow_ssh.id}",
     "${aws_security_group.consul.id}",
     "${aws_security_group.vault.id}",
   ]
@@ -62,6 +18,29 @@ resource "aws_instance" "vault_server" {
   }
 
   iam_instance_profile = "${aws_iam_instance_profile.consulagent.name}"
+
+  provisioner "file" {
+    source      = "scripts/setup-vaultserver.sh"
+    destination = "/tmp/setup-vaultserver.sh"
+  }
+
+  provisioner "file" {
+    source      = "scripts/setup-consulclient.sh"
+    destination = "/tmp/setup-consulclient.sh"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "chmod +x /tmp/setup-*.sh",
+      "/tmp/setup-consulclient.sh ${var.consulimage}",
+      "/tmp/setup-vaultserver.sh ${var.vaultimage}",
+    ]
+  }
+
+  connection {
+    type = "ssh"
+    user = "core"
+  }
 }
 
 resource "aws_route53_record" "vault" {
@@ -70,4 +49,23 @@ resource "aws_route53_record" "vault" {
   type    = "A"
   ttl     = "300"
   records = ["${aws_instance.vault_server.*.private_ip}"]
+}
+
+resource "aws_security_group" "vault" {
+  name   = "vault"
+  vpc_id = "${aws_vpc.nomad.id}"
+
+  ingress {
+    from_port       = 8200
+    to_port         = 8200
+    protocol        = "tcp"
+    security_groups = ["${aws_security_group.nomad.id}", "${aws_security_group.bastion.id}"]
+  }
+
+  ingress {
+    from_port       = 8201
+    to_port         = 8201
+    protocol        = "tcp"
+    security_groups = ["${aws_security_group.nomad.id}", "${aws_security_group.bastion.id}"]
+  }
 }

@@ -7,6 +7,7 @@ resource "aws_instance" "bastion" {
 
   vpc_security_group_ids = [
     "${aws_security_group.allow_outbound.id}",
+    "${aws_security_group.allow_ssh.id}",
     "${aws_security_group.bastion.id}",
   ]
 
@@ -14,11 +15,15 @@ resource "aws_instance" "bastion" {
     Name = "bastion"
   }
 
+  provisioner "file" {
+    source      = "scripts/setup-nomadcli.sh"
+    destination = "/tmp/setup-nomadcli.sh"
+  }
+
   provisioner "remote-exec" {
     inline = [
-      "wget https://releases.hashicorp.com/nomad/0.7.0/nomad_0.7.0_linux_amd64.zip",
-      "sudo mkdir -p /opt/bin",
-      "sudo unzip nomad*.zip -d /opt/bin",
+      "chmod +x /tmp/setup-nomadcli.sh",
+      "/tmp/setup-nomadcli.sh ${var.nomadversion}",
     ]
   }
 
@@ -31,11 +36,4 @@ resource "aws_instance" "bastion" {
 resource "aws_security_group" "bastion" {
   name   = "bastion"
   vpc_id = "${aws_vpc.nomad.id}"
-
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
 }
