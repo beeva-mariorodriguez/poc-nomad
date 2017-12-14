@@ -17,7 +17,3 @@ variable "consul" {
 variable "fabiolb" {
   default = "fabiolb/fabio:1.5.2-go1.9.1"
 }
-
-variable "nomad" {
-  default = "beevamariorodriguez/nomad:v0.6.3"
-}
