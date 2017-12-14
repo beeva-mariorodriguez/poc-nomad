@@ -3,7 +3,6 @@ resource "aws_security_group" "vault_client" {
   vpc_id = "${aws_vpc.nomad.id}"
 }
 
-
 resource "aws_security_group" "vault" {
   name   = "vault"
   vpc_id = "${aws_vpc.nomad.id}"
@@ -19,14 +18,14 @@ resource "aws_security_group" "vault" {
     from_port       = 8200
     to_port         = 8200
     protocol        = "tcp"
-    security_groups = ["${aws_security_group.vault_client.id}","${aws_security_group.bastion.id}"]
+    security_groups = ["${aws_security_group.vault_client.id}", "${aws_security_group.bastion.id}"]
   }
 
   ingress {
     from_port       = 8201
     to_port         = 8201
     protocol        = "tcp"
-    security_groups = ["${aws_security_group.vault_client.id}","${aws_security_group.bastion.id}"]
+    security_groups = ["${aws_security_group.vault_client.id}", "${aws_security_group.bastion.id}"]
   }
 }
 
@@ -65,7 +64,6 @@ resource "aws_instance" "vault_server" {
   iam_instance_profile = "${aws_iam_instance_profile.consulagent.name}"
 }
 
-
 resource "aws_route53_record" "vault" {
   zone_id = "${aws_route53_zone.private.zone_id}"
   name    = "vault"
@@ -73,4 +71,3 @@ resource "aws_route53_record" "vault" {
   ttl     = "300"
   records = ["${aws_instance.vault_server.*.private_ip}"]
 }
-
