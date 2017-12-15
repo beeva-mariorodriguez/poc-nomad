@@ -3,7 +3,7 @@ resource "aws_instance" "vault_server" {
   instance_type = "t2.micro"
   subnet_id     = "${aws_subnet.consul.id}"
   key_name      = "${var.keyname}"
-  count         = 1
+  count         = 2
 
   vpc_security_group_ids = [
     "${aws_security_group.allow_outbound.id}",
