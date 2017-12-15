@@ -10,20 +10,10 @@ variable "keyname" {
   default = "poc-nomad"
 }
 
-variable "consulimage" {
-  default = "consul:1.0.0"
+variable "consulversion" {
+  default = "1.0.1"
 }
 
-variable "fabiolb" {
-  default = "fabiolb/fabio:1.5.2-go1.9.1"
-}
-
-# vault /contaner/ image version <= vault servers
-variable "vaultimage" {
-  default = "vault:0.9.0"
-}
-
-# vault CLI version <= bastion
 variable "vaultversion" {
   default = "0.9.0"
 }

@@ -19,14 +19,16 @@ resource "aws_instance" "consul_server" {
   iam_instance_profile = "${aws_iam_instance_profile.consulagent.name}"
 
   provisioner "file" {
-    source      = "scripts/setup-consulserver.sh"
-    destination = "/tmp/setup-consulserver.sh"
+    source      = "scripts/setup-vm.sh"
+    destination = "/tmp/setup-vm.sh"
   }
 
   provisioner "remote-exec" {
     inline = [
-      "chmod +x /tmp/setup-consulserver.sh",
-      "/tmp/setup-consulserver.sh ${var.consulimage} ${var.consulkey}",
+      "export CONSULVERSION=${var.consulversion}",
+      "export CONSULKEY=${var.consulkey}",
+      "chmod +x /tmp/setup-vm.sh",
+      "/tmp/setup-vm.sh consulserver",
     ]
   }
 

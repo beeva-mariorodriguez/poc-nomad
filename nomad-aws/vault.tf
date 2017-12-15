@@ -21,20 +21,17 @@ resource "aws_instance" "vault_server" {
   iam_instance_profile = "${aws_iam_instance_profile.vaultserver.name}"
 
   provisioner "file" {
-    source      = "scripts/setup-vaultserver.sh"
-    destination = "/tmp/setup-vaultserver.sh"
-  }
-
-  provisioner "file" {
-    source      = "scripts/setup-consulclient.sh"
-    destination = "/tmp/setup-consulclient.sh"
+    source      = "scripts/setup-vm.sh"
+    destination = "/tmp/setup-vm.sh"
   }
 
   provisioner "remote-exec" {
     inline = [
-      "chmod +x /tmp/setup-*.sh",
-      "/tmp/setup-consulclient.sh ${var.consulimage} ${var.consulkey}",
-      "/tmp/setup-vaultserver.sh ${var.vaultimage}",
+      "export CONSULVERSION=${var.consulversion}",
+      "export CONSULKEY=${var.consulkey}",
+      "export VAULTVERSION=${var.vaultversion}",
+      "chmod +x /tmp/setup-vm.sh",
+      "/tmp/setup-vm.sh vaultserver",
     ]
   }
 
