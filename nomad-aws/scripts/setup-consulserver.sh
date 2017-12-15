@@ -3,7 +3,7 @@ consulimage=${1:-"consul:1.0.0"}
 key=${2}
 
 sudo mkdir /etc/consul.d
-echo "{\"encrypt\":\"${key}\"}"  | sudo tee /etc/consul.d/encrypt.json > /dev/null
+echo "{\"encrypt\":\"${key}\"}"  | sudo tee /etc/consul.d/encrypt.json
 
 docker pull "$consulimage"
 
@@ -20,6 +20,3 @@ docker run -d --name=consul \
     -server \
     -client '{{ GetInterfaceIP "eth0" }} 127.0.0.1 172.17.0.1' \
     -bootstrap-expect 3
-
-sudo rm /etc/consul.d/encrypt.json
-
