@@ -1,3 +1,4 @@
+# instances
 resource "aws_instance" "vault_server" {
   ami           = "${data.aws_ami.coreos.image_id}"
   instance_type = "t2.micro"
@@ -17,7 +18,7 @@ resource "aws_instance" "vault_server" {
     Name   = "vault server"
   }
 
-  iam_instance_profile = "${aws_iam_instance_profile.consulagent.name}"
+  iam_instance_profile = "${aws_iam_instance_profile.vaultserver.name}"
 
   provisioner "file" {
     source      = "scripts/setup-vaultserver.sh"
@@ -43,6 +44,7 @@ resource "aws_instance" "vault_server" {
   }
 }
 
+# DNS
 resource "aws_route53_record" "vault" {
   zone_id = "${aws_route53_zone.private.zone_id}"
   name    = "vault"
@@ -51,6 +53,7 @@ resource "aws_route53_record" "vault" {
   records = ["${aws_instance.vault_server.*.private_ip}"]
 }
 
+# security group
 resource "aws_security_group" "vault" {
   name   = "vault"
   vpc_id = "${aws_vpc.nomad.id}"
@@ -68,4 +71,35 @@ resource "aws_security_group" "vault" {
     protocol        = "tcp"
     security_groups = ["${aws_security_group.nomad.id}", "${aws_security_group.bastion.id}"]
   }
+}
+
+# IAM configuration
+data "aws_iam_policy_document" "vaultserver" {
+  statement {
+    actions = [
+      "ec2:DescribeInstances",
+      "iam:GetInstanceProfile",
+      "iam:GetUser",
+      "iam:GetRole",
+    ]
+
+    resources = ["*"]
+    effect    = "Allow"
+  }
+}
+
+resource "aws_iam_instance_profile" "vaultserver" {
+  name = "vaultserver"
+  role = "${aws_iam_role.vaultserver.name}"
+}
+
+resource "aws_iam_role" "vaultserver" {
+  name               = "vaultserver"
+  assume_role_policy = "${data.aws_iam_policy_document.assumerole.json}"
+}
+
+resource "aws_iam_role_policy" "vaultserver" {
+  name   = "vaultserver"
+  role   = "${aws_iam_role.vaultserver.id}"
+  policy = "${data.aws_iam_policy_document.vaultserver.json}"
 }
