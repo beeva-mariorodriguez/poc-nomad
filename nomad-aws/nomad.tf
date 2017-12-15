@@ -28,6 +28,7 @@ resource "aws_instance" "nomad_server" {
       "export CONSULVERSION=${var.consulversion}",
       "export NOMADVERSION=${var.nomadversion}",
       "export CONSULKEY=${var.consulkey}",
+      "export NOMADKEY=${var.nomadkey}",
       "chmod +x /tmp/setup-vm.sh",
       "/tmp/setup-vm.sh nomadserver",
     ]

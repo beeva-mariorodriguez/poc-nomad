@@ -89,6 +89,10 @@ server {
     bootstrap_expect = 3
 }
 EOF
+            if [[ $NOMADKEY ]]
+            then
+                sudo sed -i "/server {/a\ \ \ \ encrypt = \"${NOMADKEY}\"" /etc/nomad.d/server.hcl
+            fi
 ;;
         "client")
             cat << EOF | sudo tee /etc/nomad.d/client.hcl

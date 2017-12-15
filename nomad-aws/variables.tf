@@ -27,3 +27,4 @@ variable "dnsmasqimage" {
 }
 
 variable "consulkey" {}
+variable "nomadkey" {}
