@@ -20,10 +20,22 @@ resource "aws_instance" "bastion" {
     destination = "/tmp/setup-nomadcli.sh"
   }
 
+  provisioner "file" {
+    source      = "scripts/setup-vaultcli.sh"
+    destination = "/tmp/setup-vaultcli.sh"
+  }
+
   provisioner "remote-exec" {
     inline = [
       "chmod +x /tmp/setup-nomadcli.sh",
       "/tmp/setup-nomadcli.sh ${var.nomadversion}",
+    ]
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "chmod +x /tmp/setup-vaultcli.sh",
+      "/tmp/setup-vaultcli.sh ${var.vaultversion}",
     ]
   }
 
