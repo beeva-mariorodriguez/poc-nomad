@@ -46,8 +46,12 @@ resource "aws_route53_record" "vault" {
   zone_id = "${aws_route53_zone.private.zone_id}"
   name    = "vault"
   type    = "A"
-  ttl     = "300"
-  records = ["${aws_instance.vault_server.*.private_ip}"]
+
+  alias {
+    name                   = "${aws_elb.vault.dns_name}"
+    zone_id                = "${aws_elb.vault.zone_id}"
+    evaluate_target_health = false
+  }
 }
 
 # security group
@@ -59,14 +63,34 @@ resource "aws_security_group" "vault" {
     from_port       = 8200
     to_port         = 8200
     protocol        = "tcp"
-    security_groups = ["${aws_security_group.nomad.id}", "${aws_security_group.bastion.id}"]
+    security_groups = ["${aws_security_group.nomad.id}", "${aws_security_group.bastion.id}", "${aws_security_group.vault_lb.id}"]
   }
 
   ingress {
-    from_port       = 8201
-    to_port         = 8201
+    from_port = 8201
+    to_port   = 8201
+    protocol  = "tcp"
+    self      = true
+  }
+}
+
+# security group
+resource "aws_security_group" "vault_lb" {
+  name   = "vault_lb"
+  vpc_id = "${aws_vpc.nomad.id}"
+
+  ingress {
+    from_port       = 8200
+    to_port         = 8200
     protocol        = "tcp"
     security_groups = ["${aws_security_group.nomad.id}", "${aws_security_group.bastion.id}"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 65535
+    protocol    = "tcp"
+    cidr_blocks = ["${aws_vpc.nomad.cidr_block}"]
   }
 }
 
@@ -99,4 +123,28 @@ resource "aws_iam_role_policy" "vaultserver" {
   name   = "vaultserver"
   role   = "${aws_iam_role.vaultserver.id}"
   policy = "${data.aws_iam_policy_document.vaultserver.json}"
+}
+
+# vault LB
+resource "aws_elb" "vault" {
+  name            = "vault"
+  security_groups = ["${aws_security_group.vault_lb.id}"]
+  instances       = ["${aws_instance.vault_server.*.id}"]
+  subnets         = ["${aws_subnet.consul.id}"]
+  internal        = true
+
+  listener {
+    instance_port     = 8200
+    instance_protocol = "http"
+    lb_port           = 8200
+    lb_protocol       = "http"
+  }
+
+  health_check {
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+    timeout             = 5
+    target              = "HTTP:8200/v1/sys/health"
+    interval            = 30
+  }
 }
