@@ -192,6 +192,7 @@ case $1 in
         nomad_client
         ;;
     "vaultserver")
+        vault_cli
         consul_client
         vault_server
         ;;
