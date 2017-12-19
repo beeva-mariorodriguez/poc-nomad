@@ -31,7 +31,12 @@ job "hellohttp" {
           h = 8080
         }
 
-        #       dns_servers = ["172.17.0.1"]
+        dns_servers = ["172.17.0.1"]
+      }
+
+      env {
+        # VAULT_TOKEN = ""
+        VAULT_ADDR = "http://vault.service.consul:8200"
       }
 
       resources {
