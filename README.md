@@ -11,24 +11,17 @@ this repo contains:
 * packer
 * terraform
 * nomad CLI
+* vault CLI
 * python
 
 ## deploy cluster
-1. build images
-    ```bash
-    cd nomad-aws/ami
-    for f in *.json
-    do
-    packer build $f
-    done
-    ```
-2. deploy cluster
+1. deploy cluster
     ```bash
     cd nomad-aws/
     terraform plan
     terraform deploy
     ```
-3. deploy fabiolb
+2. deploy fabiolb
     ```bash
     cd nomad-aws
     ssh -L 4646:server.nomad.beevalabs:4646 $(terraform output bastion_public_ip) # tunnel to nomad API
@@ -38,6 +31,7 @@ this repo contains:
     nomad plan jobs/fabiolb.nomad
     nomad run jobs/fabiolb.nomad
     ```
+3. configure vault - follow instructions in VAULT.md
 
 ## run example service
 ```bash
