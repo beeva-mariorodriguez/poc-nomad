@@ -110,7 +110,7 @@ Requires=network-online.target
 
 [Service]
 TimeoutStartSec=0
-ExecStart=/opt/bin/nomad agent -config /etc/nomad.d/$role.hcl
+ExecStart=/opt/bin/nomad agent -config /etc/nomad.d
 
 [Install]
 WantedBy=multi-user.target
