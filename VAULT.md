@@ -47,7 +47,7 @@ https://www.nomadproject.io/docs/vault-integration/index.html
         vault {
             enabled = true
             address = "http://vault.nomad.beevalabs:8200"
-            create_from_role = "nomad_cluster"
+            create_from_role = "nomad-cluster"
             tls_skip_verify = true
             token = "PREVIOUSLY OBTAINED TOKEN"
         }
