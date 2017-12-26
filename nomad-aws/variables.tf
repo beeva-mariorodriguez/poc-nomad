@@ -19,7 +19,7 @@ variable "vaultversion" {
 }
 
 variable "nomadversion" {
-  default = "0.7.0"
+  default = "0.7.1"
 }
 
 variable "dnsmasqimage" {
