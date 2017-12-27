@@ -28,3 +28,7 @@ variable "dnsmasqimage" {
 
 variable "consulkey" {}
 variable "nomadkey" {}
+
+variable "vaulttoken" {
+  default = ""
+}

@@ -36,3 +36,7 @@ resource "aws_route" "r" {
   route_table_id         = "${aws_vpc.nomad.default_route_table_id}"
   gateway_id             = "${aws_internet_gateway.gw.id}"
 }
+
+resource "null_resource" "vpc" {
+  depends_on = ["aws_vpc.nomad", "aws_route.r", "aws_internet_gateway.gw", "aws_route53_zone.private"]
+}

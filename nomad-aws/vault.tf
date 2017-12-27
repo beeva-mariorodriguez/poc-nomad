@@ -6,6 +6,14 @@ resource "aws_instance" "vault_server" {
   key_name      = "${var.keyname}"
   count         = 2
 
+  depends_on = [
+    "null_resource.consul_cluster",
+    "null_resource.vpc",
+    "aws_iam_instance_profile.vaultserver",
+    "aws_iam_role.vaultserver",
+    "aws_iam_role_policy.vaultserver",
+  ]
+
   vpc_security_group_ids = [
     "${aws_security_group.allow_outbound.id}",
     "${aws_security_group.allow_ssh.id}",
@@ -147,4 +155,8 @@ resource "aws_elb" "vault" {
     target              = "HTTP:8200/v1/sys/health"
     interval            = 30
   }
+}
+
+resource "null_resource" "vault_cluster" {
+  depends_on = ["aws_instance.vault_server", "aws_route53_record.vault", "aws_elb.vault"]
 }

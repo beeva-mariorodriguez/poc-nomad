@@ -4,6 +4,7 @@ resource "aws_instance" "bastion" {
   subnet_id     = "${aws_subnet.bastion.id}"
   key_name      = "${var.keyname}"
   count         = 1
+  depends_on    = ["null_resource.vpc"]
 
   vpc_security_group_ids = [
     "${aws_security_group.allow_outbound.id}",

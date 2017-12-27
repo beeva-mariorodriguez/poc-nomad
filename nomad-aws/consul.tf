@@ -5,6 +5,13 @@ resource "aws_instance" "consul_server" {
   key_name      = "${var.keyname}"
   count         = 3
 
+  depends_on = [
+    "null_resource.vpc",
+    "aws_iam_instance_profile.consulagent",
+    "aws_iam_role.consulagent",
+    "aws_iam_role_policy.consulagent",
+  ]
+
   vpc_security_group_ids = [
     "${aws_security_group.allow_outbound.id}",
     "${aws_security_group.allow_ssh.id}",
@@ -70,4 +77,24 @@ resource "aws_security_group" "consul" {
     protocol        = "tcp"
     security_groups = ["${aws_security_group.bastion.id}"]
   }
+}
+
+resource "aws_iam_instance_profile" "consulagent" {
+  name = "consulagent"
+  role = "${aws_iam_role.consulagent.name}"
+}
+
+resource "aws_iam_role" "consulagent" {
+  name               = "consulagent"
+  assume_role_policy = "${data.aws_iam_policy_document.assumerole.json}"
+}
+
+resource "aws_iam_role_policy" "consulagent" {
+  name   = "consulagent"
+  role   = "${aws_iam_role.consulagent.id}"
+  policy = "${data.aws_iam_policy_document.describeinstances.json}"
+}
+
+resource "null_resource" "consul_cluster" {
+  depends_on = ["aws_instance.consul_server", "aws_route53_record.consul"]
 }

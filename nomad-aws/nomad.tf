@@ -4,6 +4,7 @@ resource "aws_instance" "nomad_server" {
   subnet_id     = "${aws_subnet.nomad.id}"
   key_name      = "${var.keyname}"
   count         = 3
+  depends_on    = ["null_resource.consul_cluster", "null_resource.vpc"]
 
   vpc_security_group_ids = [
     "${aws_security_group.allow_outbound.id}",
@@ -29,6 +30,7 @@ resource "aws_instance" "nomad_server" {
       "export NOMADVERSION=${var.nomadversion}",
       "export CONSULKEY=${var.consulkey}",
       "export NOMADKEY=${var.nomadkey}",
+      "export VAULTTOKEN=${var.vaulttoken}",
       "chmod +x /tmp/setup-vm.sh",
       "/tmp/setup-vm.sh nomadserver",
     ]
@@ -46,6 +48,7 @@ resource "aws_instance" "nomad_docker_client" {
   subnet_id     = "${aws_subnet.client.id}"
   key_name      = "${var.keyname}"
   count         = 4
+  depends_on    = ["null_resource.consul_cluster"]
 
   vpc_security_group_ids = [
     "${aws_security_group.allow_outbound.id}",
@@ -144,4 +147,8 @@ resource "aws_security_group" "nomad" {
     protocol  = "udp"
     self      = true
   }
+}
+
+resource "null_resource" "nomad_cluster" {
+  depends_on = ["aws_instance.nomad_server", "aws_instance.nomad_docker_client", "aws_route53_record.client", "aws_route53_record.server", "aws_elb.lb"]
 }

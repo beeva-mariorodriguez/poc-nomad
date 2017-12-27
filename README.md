@@ -15,23 +15,63 @@ this repo contains:
 * python
 
 ## deploy cluster
-1. deploy cluster
+0. ``cd nomad-aws``
+1. deploy bastion
     ```bash
-    cd nomad-aws/
-    terraform plan
-    terraform deploy
+    terraform plan -target aws_instance.bastion
+    terraform apply -target aws_instance.bastion
     ```
-2. deploy fabiolb
+2. deploy consul cluster
     ```bash
-    cd nomad-aws
+    terraform plan -target null_resource.consul_cluster
+    terraform apply -target null_resource.consul_cluster
+    ```
+2. deploy vault cluster
+    ```bash
+    terraform plan -target null_resource.vault_cluster
+    terraform apply -target null_resource.vault_cluster
+    ```
+3. initialize vault
+    ```bash
+    ssh core@$(terraform output -json vault_server_public_ip | jq -r '.value[0]') docker exec vault vault init -key-shares=1 -key-threshold=1
+    ```
+    store the unseal key and initial root token
+4. unseal vault servers using the unseal key obtained in step 3
+    ```bash
+    for h in $(terraform output -json vault_server_public_ip | jq -r '.value[]')
+    do
+        ssh core@$h docker exec vault vault unseal $UNSEAL_KEY
+    done
+    ```
+5. configure vault
+    1. tunnel to vault API
+        ```bash
+        ssh -L 8200:vault.nomad.beevalabs:8200 core@$(terraform output bastion_public_ip)
+        ```
+    2. apply the example configuration (https://www.nomadproject.io/docs/vault-integration/index.html)
+        ```bash
+        export VAULT_ADDR=http://127.0.0.1:8200
+        vault auth VAULT_INITIAL_ROOT_TOKEN
+        # write the policy
+        vault policy-write nomad-server vault/nomad-server-policy.hcl
+        # create a cluster role based on this policy
+        vault write /auth/token/roles/nomad-cluster @vault/nomad-cluster-role.json
+        # create a token to be used by nomad!
+        vault token-create -policy nomad-server -period 72h -orphan
+        ```
+6. deploy nomad cluster
+    ```bash
+    terraform plan -var 'nomad_vault_token=NOMAD_TOKEN' -target null_resource.nomad_cluster
+    terraform apply -var 'nomad_vault_token=NOMAD_TOKEN' -target null_resource.nomad_cluster
+    ```
+7. deploy fabiolb
+    ```bash
     ssh -L 4646:server.nomad.beevalabs:4646 core@$(terraform output bastion_public_ip) # tunnel to nomad API
     ```
     ```bash
-    cd nomad-aws
     nomad plan jobs/fabiolb.nomad
     nomad run jobs/fabiolb.nomad
     ```
-3. configure vault - follow instructions in VAULT.md
 
 ## run example service
 ```bash

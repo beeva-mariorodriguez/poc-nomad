@@ -78,7 +78,6 @@ function nomad_service {
     nomad_cli
     sudo mkdir -p /etc/nomad.d /var/lib/nomad
     role=${1:-"client"}
-
     case $role in
         "server")
             cat << EOF | sudo tee /etc/nomad.d/server.hcl
@@ -93,6 +92,15 @@ EOF
             then
                 sudo sed -i "/server {/a\ \ \ \ encrypt = \"${NOMADKEY}\"" /etc/nomad.d/server.hcl
             fi
+            cat << EOF | sudo tee /etc/nomad.d/vault.hcl
+vault {
+    enabled = true
+    address = "http://vault.nomad.beevalabs:8200"
+    create_from_role = "nomad-cluster"
+    tls_skip_verify = true
+    token = "${VAULTTOKEN}"
+}
+EOF
 ;;
         "client")
             cat << EOF | sudo tee /etc/nomad.d/client.hcl
@@ -102,9 +110,15 @@ client {
     enabled = true
 }
 EOF
+            cat << EOF | sudo tee /etc/nomad.d/vault.hcl
+vault {
+    enabled = true
+    address = "http://vault.nomad.beevalabs:8200"
+    tls_skip_verify = true
+}
+EOF
 ;;
     esac
-
 
     cat << EOF | sudo tee /etc/systemd/system/nomad.service
 [Unit]
