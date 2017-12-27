@@ -14,6 +14,7 @@ job "fabiolb" {
       config {
         network_mode = "host"
         image        = "fabiolb/fabio:1.5.2-go1.9.1"
+        dns_servers = ["172.17.0.1"]
       }
 
       resources {

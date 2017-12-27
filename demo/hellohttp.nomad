@@ -30,8 +30,7 @@ job "hellohttp" {
         port_map {
           h = 8080
         }
-
-        #       dns_servers = ["172.17.0.1"]
+        dns_servers = ["172.17.0.1"]
       }
 
       resources {
