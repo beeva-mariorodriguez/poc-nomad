@@ -24,7 +24,7 @@ this repo contains:
 2. deploy fabiolb
     ```bash
     cd nomad-aws
-    ssh -L 4646:server.nomad.beevalabs:4646 $(terraform output bastion_public_ip) # tunnel to nomad API
+    ssh -L 4646:server.nomad.beevalabs:4646 core@$(terraform output bastion_public_ip) # tunnel to nomad API
     ```
     ```bash
     cd nomad-aws

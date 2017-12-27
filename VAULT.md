@@ -10,7 +10,7 @@ https://www.nomadproject.io/docs/vault-integration/index.html
         ```bash
         ssh core@$(terraform output -json 'vault_server_public_ip' | jq -r '.value[0]')
         ```
-    2. run ``docker exec vault vault init``
+    2. run ``docker exec vault vault init`` OR follow: https://www.vaultproject.io/docs/concepts/pgp-gpg-keybase.html to get encrypted keys
     3. store the keys and the initial root token
 
 2. unseal servers, using any 3 of the 5 previously obtained unseal keys 
@@ -47,7 +47,7 @@ https://www.nomadproject.io/docs/vault-integration/index.html
         vault {
             enabled = true
             address = "http://vault.nomad.beevalabs:8200"
-            create_from_role = "nomad_cluster"
+            create_from_role = "nomad-cluster"
             tls_skip_verify = true
             token = "PREVIOUSLY OBTAINED TOKEN"
         }
@@ -58,4 +58,16 @@ https://www.nomadproject.io/docs/vault-integration/index.html
         sudo systemctl restart nomad
         ```
     
-
+5. configure nomad clients
+    1. create a new configuration file: /etc/nomad.d/vault.hcl:
+        ```hcl
+        vault {
+            enabled = true
+            address = "http://vault.nomad.beevalabs:8200"
+            tls_skip_verify = true
+        }
+        ```
+    2. restart clients
+        ```bash
+        sudo systemctl restart nomad
+        ```
