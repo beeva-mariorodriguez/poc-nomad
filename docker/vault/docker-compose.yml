@@ -1,0 +1,39 @@
+version: '3'
+
+services:
+  vault:
+    image: "docker.io/vault:0.9.0"
+    cap_add:
+    - IPC_LOCK
+    expose:
+    - "8200"
+    ports:
+    - "8200:8200"
+    networks:
+    - vault
+    volumes:
+    - "vault-file:/vault/file"
+    - "vault-logs:/vault/logs"
+    command: ["server","-dev"]
+
+  db:
+    image: "docker.io/mariadb:10.2.11"
+    expose:
+    - 3306
+    ports:
+    - "3306:3306"
+    networks:
+    - vault
+    environment:
+      MYSQL_ROOT_PASSWORD: "mysql"
+    volumes:
+    - "db:/var/lib/mysql"
+
+volumes:
+  db:
+  vault-file:
+  vault-logs:
+
+networks:
+  vault:
+
